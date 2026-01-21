@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="24dp">
+
+        <TextView
+            android:id="@+id/tvNamaUser"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Nama Pegawai"
+            android:textSize="16sp"
+            android:gravity="center"
+            android:padding="12dp"
+            android:background="#E3F2FD" />
+
+        <TextView android:id="@+id/tvStatus"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Klik Cek Lokasi"
+            android:textSize="18sp"
+            android:padding="16dp" />
+
+        <Button android:id="@+id/btnCekLokasi"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="1. Cek GPS Lokasi" />
+
+        <Button android:id="@+id/btnAbsen"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="2. Ambil Foto Absen"
+            />
+
+        <Button android:id="@+id/btnLaporan"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Lihat Laporan Absen" />
+
+        <Button
+            android:id="@+id/btnSetKoordinat"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="🔧 ADMIN: Set Koordinat Kantor"
+            android:visibility="gone"
+            android:layout_marginTop="8dp" />
+
+        <Button
+            android:id="@+id/btnLogout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Logout"
+            android:layout_gravity="end"
+            android:layout_margin="8dp" />
+
+
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

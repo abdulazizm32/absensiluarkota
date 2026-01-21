@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="24dp">
+
+    <EditText android:id="@+id/etNama"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Nama Pegawai" />
+
+    <TextView android:id="@+id/tvStatus"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Klik Cek Lokasi"
+        android:textSize="18sp"
+        android:padding="16dp" />
+
+    <Button android:id="@+id/btnCekLokasi"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="1. Cek GPS Lokasi" />
+
+    <Button android:id="@+id/btnAbsen"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="2. Ambil Foto Absen"
+        android:enabled="false" />
+
+    <Button android:id="@+id/btnLaporan"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Lihat Laporan Absen" />
+
+</LinearLayout>
