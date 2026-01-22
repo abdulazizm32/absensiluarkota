@@ -278,7 +278,32 @@ private fun ambilFotoAbsen(data: Intent?, nama: String, absenDao: AbsenDao, fuse
                         longitude = loc?.longitude ?: 0.0,
                         fotoPath = fotoPath
                     )
-                    absenDao.insert(absen)
+//                    absenDao.insert(absen)
+                    val insertedId = absenDao.insert(absen)
+                    Log.d("AbsenDebug", "Sukses! Inserted ID: $insertedId")
+
+                    try {
+//                        val absenDao = db.getAbsenDao()
+                        val list = absenDao.getAll()
+
+                        Log.d("LaporanDebug", "Total absen: ${list.size}")
+
+                        list.forEachIndexed { index, absen ->
+                            Log.d("AbsenDebug",
+                                "[$index] ID:${absen.id} | ${absen.nama} | ${absen.tanggal} | " +
+                                        "Lat:${absen.latitude} Lng:${absen.longitude} | Foto:${absen.fotoPath}"
+                            )
+                        }
+
+//                        adapter.submitList(list)
+//                        tvJumlah.text = "${list.size} absen ditemukan"
+
+                    } catch (e: Exception) {
+                        Log.e("LaporanError", "getAll gagal: ${e.message}")
+                    }
+
+//                        absenDao.getAll()
+
                     withContext(Dispatchers.Main) {
                         Log.d("Absen-tess", "Inserted: $absen")
                         Toast.makeText(context, "Absen $nama DISIMPAN!", Toast.LENGTH_LONG).show()

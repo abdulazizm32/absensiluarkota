@@ -10,50 +10,42 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import android.graphics.BitmapFactory
 import java.io.File
-class LaporanAdapter :
-    ListAdapter<Absen, LaporanAdapter.AbsenViewHolder>(DIFF) {
 
-    companion object {
-        val DIFF = object : DiffUtil.ItemCallback<Absen>() {
-            override fun areItemsTheSame(oldItem: Absen, newItem: Absen) =
-                oldItem.id == newItem.id
+class LaporanAdapter : ListAdapter<Absen, LaporanAdapter.ViewHolder>(DiffCallback()) {
 
-            override fun areContentsTheSame(oldItem: Absen, newItem: Absen) =
-                oldItem == newItem
-        }
+    class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        val tvNama: TextView = view.findViewById(R.id.tv_nama)
+        val tvTanggal: TextView = view.findViewById(R.id.tv_tanggal)
+        val tvKoordinat: TextView = view.findViewById(R.id.tv_koordinat)
+        val ivFoto: ImageView = view.findViewById(R.id.iv_foto)
     }
 
-    inner class AbsenViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val tvNama: TextView = view.findViewById(R.id.tvNama)
-        val tvTanggal: TextView = view.findViewById(R.id.tvTanggal)
-        val tvKoordinat: TextView = view.findViewById(R.id.tvKoordinat)
-        val ivFoto: ImageView = view.findViewById(R.id.ivFoto)
-
-
-    }
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AbsenViewHolder {
-        val v = LayoutInflater.from(parent.context)
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+        val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.item_absen, parent, false)
-        return AbsenViewHolder(v)
+        return ViewHolder(view)
     }
 
-    override fun onBindViewHolder(holder: AbsenViewHolder, position: Int) {
-        val item = getItem(position)
-        holder.tvNama.text = item.nama
-        holder.tvTanggal.text = item.tanggal
-        holder.tvKoordinat.text =
-            "${item.latitude}, ${item.longitude}"
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        val absen = getItem(position)
+        holder.tvNama.text = absen.nama
+        holder.tvTanggal.text = absen.tanggal
+        holder.tvKoordinat.text = "Lat:${absen.latitude}, Lng:${absen.longitude}"
 
-        holder.ivFoto.setImageResource(R.drawable.imge_not_found) // default icon
-
-// Load thumbnail (path dari camera)
-        if (!item.fotoPath.isNullOrEmpty()) {
-            val imgFile = File(item.fotoPath)
-            if (imgFile.exists()) {
-                val bitmap = BitmapFactory.decodeFile(imgFile.absolutePath)
+        // Load foto dari path
+        try {
+            val file = File(absen.fotoPath)
+            if (file.exists()) {
+                val bitmap = BitmapFactory.decodeFile(file.absolutePath)
                 holder.ivFoto.setImageBitmap(bitmap)
             }
+        } catch (e: Exception) {
+            holder.ivFoto.setImageResource(android.R.drawable.ic_menu_camera)
         }
+    }
+
+    class DiffCallback : DiffUtil.ItemCallback<Absen>() {
+        override fun areItemsTheSame(oldItem: Absen, newItem: Absen): Boolean = oldItem.id == newItem.id
+        override fun areContentsTheSame(oldItem: Absen, newItem: Absen): Boolean = oldItem == newItem
     }
 }

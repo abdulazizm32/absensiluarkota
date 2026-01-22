@@ -6,18 +6,51 @@
     android:padding="16dp">
 
     <TextView
+        android:id="@+id/tv_judul"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="LAPORAN ABSENSI"
-        android:textSize="20sp"
+        android:textSize="24sp"
         android:textStyle="bold"
         android:gravity="center"
         android:layout_marginBottom="16dp" />
 
+    <TextView
+        android:id="@+id/tv_jumlah"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="0 absen ditemukan"
+        android:textSize="18sp"
+        android:gravity="center"
+        android:layout_marginBottom="16dp" />
+
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvLaporan"
+        android:id="@+id/rv_laporan"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1" />
+        android:layout_weight="1"
+        android:padding="8dp" />
+
+    <Button
+        android:id="@+id/btn_refresh"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Refresh"
+        android:layout_marginTop="16dp" />
+
+    <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <TextView
+            android:id="@+id/tv_laporan"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="16dp"
+            android:text="Loading..."
+            android:textSize="14sp" />
+
+    </ScrollView>
+
 
 </LinearLayout>

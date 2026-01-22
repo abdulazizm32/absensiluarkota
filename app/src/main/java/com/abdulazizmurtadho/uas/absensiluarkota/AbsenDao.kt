@@ -2,14 +2,15 @@ package com.abdulazizmurtadho.uas.absensiluarkota
 
 import androidx.lifecycle.LiveData
 import androidx.room.*
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface AbsenDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(absen: Absen)
+    suspend fun insert(absen: Absen): Long
 
     @Query("SELECT * FROM absensi ORDER BY tanggal DESC")
-    suspend fun getAll(): List<Absen>
+    suspend fun getAll(): List<Absen>;
 
     @Query("SELECT COUNT(*) FROM absensi")
     suspend fun getCount(): Int

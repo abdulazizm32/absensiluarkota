@@ -5,7 +5,8 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "absensi")
 data class Absen(
-    @PrimaryKey(autoGenerate = true) val id: Int = 1,
+    @PrimaryKey(autoGenerate = true)
+    val id: Int = 0,
     val nama: String,
     val tanggal: String,
     val latitude: Double,
