@@ -21,4 +21,13 @@ interface AbsenDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertUser(user: User)
+
+    @Transaction
+    suspend fun ensureTestUsers() {
+        val admin = User("admin", "123", "Admin IT", "admin")
+        val pegawai = User("pegawai", "123", "Abdul Aziz", "pegawai")
+
+        insertUser(admin)
+        insertUser(pegawai)
+    }
 }

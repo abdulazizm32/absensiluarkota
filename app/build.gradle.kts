@@ -51,6 +51,7 @@ dependencies {
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
+    implementation(libs.androidx.navigation.compose)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -70,12 +71,20 @@ dependencies {
 
     implementation("androidx.room:room-runtime:2.6.1")
     implementation("androidx.room:room-ktx:2.6.1")
-    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.3")
     kapt("androidx.room:room-compiler:2.6.1")
 
-    implementation("com.mapbox.maps:android-ndk27:11.17.1")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.3")
+
+    implementation("com.mapbox.maps:android:11.4.0")
+
     implementation("com.mapbox.extension:maps-compose-ndk27:11.17.1")
-    implementation("com.google.android.gms:play-services-location:21.3.0")
+
+    implementation("androidx.compose.ui:ui:1.7.0")
+    implementation("androidx.compose.material3:material3:1.3.0")
+    implementation("androidx.compose.ui:ui-tooling-preview:1.7.0")
+    implementation("androidx.activity:activity-compose:1.9.2")
+
+    implementation("androidx.compose.material:material-icons-extended:1.7.0")
 
 
 }
