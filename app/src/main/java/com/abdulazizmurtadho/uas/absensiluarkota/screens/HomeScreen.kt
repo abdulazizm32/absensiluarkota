@@ -1,6 +1,7 @@
 package com.abdulazizmurtadho.uas.absensiluarkota.screens
 
 import android.Manifest
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -21,11 +22,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.content.ContextCompat.startActivity
 import androidx.navigation.NavController
 import com.abdulazizmurtadho.uas.absensiluarkota.Absen
+import com.abdulazizmurtadho.uas.absensiluarkota.AbsenDao
 import com.abdulazizmurtadho.uas.absensiluarkota.AppDatabase
 import com.abdulazizmurtadho.uas.absensiluarkota.FirstApp  // App class dengan DB
+import com.abdulazizmurtadho.uas.absensiluarkota.LaporanActivity
 import com.abdulazizmurtadho.uas.absensiluarkota.MapsActivity
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
@@ -46,24 +51,24 @@ fun HomeScreen(navController: NavController) {
     val nama = prefs.getString("nama", "User") ?: "User"
     val role = prefs.getString("role", "pegawai") ?: "pegawai"
     val isAdmin = role == "admin"
-    Log.d("USERSDEBUG", "role: $role, isAdmin: $isAdmin, nama: $nama")
+    Log.d("USERSDEBUG", "role: $role, nama: $nama")
+
 
     var statusText by remember { mutableStateOf("Klik Cek Lokasi") }
     var canAbsen by remember { mutableStateOf(false) }
-    var isLoading by remember { mutableStateOf(false) }
 
-    val firstApp = context.applicationContext as? FirstApp
-    val absenDao = firstApp?.getAbsenDao()
+    val firstApp = context.applicationContext as FirstApp
+    val absenDao = firstApp.getAbsenDao()
 
+    val prefs_lokasi = context.getSharedPreferences("appsettings", Context.MODE_PRIVATE)
     val lokasiKantor = remember {
         Location("").apply {
-            latitude = -8.0280654
-            longitude = 112.6329028
+            latitude = prefs_lokasi.getFloat("kantorlat", -8.0280654f).toDouble()  // Load SharedPrefs
+            longitude = prefs_lokasi.getFloat("kantorlng", 112.6329028f).toDouble()
         }
     }
     val fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
 
-    // GPS Permission Launcher
     val gpsLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { isGranted ->
@@ -76,7 +81,6 @@ fun HomeScreen(navController: NavController) {
         }
     }
 
-    // Camera Absen Launcher
     val cameraLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
@@ -123,8 +127,8 @@ fun HomeScreen(navController: NavController) {
                             gpsLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
                         } else {
                             cekLokasi(fusedLocationClient, lokasiKantor, context) { distance, can ->
-                                statusText = if (can) "✅ DI KANTOR! ${String.format("%.0f", distance)}m"
-                                else "❌ LUAR KANTOR! ${String.format("%.0f", distance)}m"
+                                statusText = if (can) "DI KANTOR! ${String.format("%.0f", distance)}m"
+                                else "LUAR KANTOR! ${String.format("%.0f", distance)}m"
                                 canAbsen = can
                             }
                         }
@@ -134,14 +138,52 @@ fun HomeScreen(navController: NavController) {
                     Text("CEK LOKASI")
                 }
 
+                val cameraPermissionLauncher = rememberLauncherForActivityResult(
+                    ActivityResultContracts.RequestPermission()
+                ) { isGranted ->
+                    if (isGranted) {
+                        cameraLauncher.launch(Intent(MediaStore.ACTION_IMAGE_CAPTURE))
+                        Toast.makeText(context, "Camera siap!", Toast.LENGTH_SHORT).show()
+                    } else {
+                        Toast.makeText(context, "Camera ditolak. Buka Settings > App > Permissions manual", Toast.LENGTH_LONG).show()
+                    }
+                }
+
                 Spacer(modifier = Modifier.height(16.dp))
 
+                val cameraLauncher = rememberLauncherForActivityResult(
+                    ActivityResultContracts.StartActivityForResult()
+                ) { result ->
+                    if (result.resultCode == android.app.Activity.RESULT_OK && result.data != null) {
+                        ambilFotoAbsen(result.data, nama, absenDao, fusedLocationClient, context)
+                    }
+                }
+
+
+
                 Button(
-                    onClick = { cameraLauncher.launch(Intent(MediaStore.ACTION_IMAGE_CAPTURE)) },
+                    onClick = {
+                        if (ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA)
+                            == PackageManager.PERMISSION_GRANTED) {
+                            cameraLauncher.launch(Intent(MediaStore.ACTION_IMAGE_CAPTURE))
+                        } else {
+                            cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
+                        }
+                    },
                     modifier = Modifier.fillMaxWidth(),
                     enabled = canAbsen
+                )   {
+                    Text("Absen Sekarang")
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+                Button(
+                    onClick = {
+                        context.startActivity(Intent(context, LaporanActivity::class.java))
+                    },
+                    modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text("ABSEN SEKARANG")
+                    Text("LAPORAN")
                 }
 
                 if (isAdmin) {
@@ -186,10 +228,10 @@ private fun cekLokasi(
     context: Context,
     onResult: (distance: Float, canAbsen: Boolean) -> Unit
 ) {
-    var statusText = "Mencari GPS..."  // IMMEDIATE feedback [file:5]
+    var statusText = "Mencari GPS..."
 
     if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-        statusText = "GPS Permission dibutuhkan!"
+        statusText = "Gagal Akses permission GPS!"
         return
     }
 
@@ -212,54 +254,46 @@ private fun cekLokasi(
         }
 }
 
-private fun ambilFotoAbsen(
-    data: android.content.Intent?,
-    nama: String,
-    absenDao: Any?,
-    fusedLocationClient: FusedLocationProviderClient,
-    context: Context
-) {
-    CoroutineScope(Dispatchers.IO).launch {
-        val bitmap = data?.extras?.get("data") as? Bitmap
-        bitmap?.let {
-            val fotoPath = "${context.getExternalFilesDir(null)?.absolutePath}/foto_${System.currentTimeMillis()}.jpg"
-            try {
-                File(fotoPath).outputStream().use { out ->
-                    it.compress(Bitmap.CompressFormat.JPEG, 90, out)
-                }
-                fusedLocationClient.lastLocation.addOnSuccessListener { loc ->
-                    CoroutineScope(Dispatchers.IO).launch {
-                        try {
-                            lateinit var db: AppDatabase
-                            val tanggal = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).format(Date())
-                            val absen = Absen(  // Sesuaikan entity
-                                nama = nama,
-                                tanggal = tanggal,
-                                latitude = loc?.latitude ?: 0.0,
-                                longitude = loc?.longitude ?: 0.0,
-                                fotoPath = fotoPath
-                            )
-                            db.absenDao().insert(absen)
-                            withContext(Dispatchers.Main) {
-                                Toast.makeText(context, "Absen $nama DISIMPAN!", Toast.LENGTH_LONG).show()
-                            }
-                        } catch (e: Exception) {
-                            Log.e("AbsenError", "Insert gagal: ${e.message}", e)
-                            withContext(Dispatchers.Main) {
-                                Toast.makeText(context, "Gagal simpan: ${e.message}", Toast.LENGTH_LONG).show()
-                            }
-                        }
+private fun ambilFotoAbsen(data: Intent?, nama: String, absenDao: AbsenDao, fusedLocationClient: FusedLocationProviderClient, context: Context ) {
+    val bitmap = data?.extras?.get("data") as? Bitmap
+    bitmap ?: run {
+        Toast.makeText(context, "Foto gagal diambil", Toast.LENGTH_SHORT).show()
+        return
+    }
+
+    val fotoPath = "${context.getExternalFilesDir(null)?.absolutePath}/foto_${System.currentTimeMillis()}.jpg"
+    try {
+        File(fotoPath).outputStream().use { out ->
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 90, out)
+        }
+
+        fusedLocationClient.lastLocation.addOnSuccessListener { loc ->
+            CoroutineScope(Dispatchers.IO).launch {
+                try {
+                    val tanggal = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).format(Date())
+                    val absen = Absen(
+                        nama = nama,
+                        tanggal = tanggal,
+                        latitude = loc?.latitude ?: 0.0,
+                        longitude = loc?.longitude ?: 0.0,
+                        fotoPath = fotoPath
+                    )
+                    absenDao.insert(absen)
+                    withContext(Dispatchers.Main) {
+                        Log.d("Absen-tess", "Inserted: $absen")
+                        Toast.makeText(context, "Absen $nama DISIMPAN!", Toast.LENGTH_LONG).show()
+                    }
+                } catch (e: Exception) {
+                    Log.e("AbsenError", "Insert gagal: ${e.message}", e)
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(context, "Gagal simpan: ${e.message}", Toast.LENGTH_LONG).show()
                     }
                 }
-            } catch (e: Exception) {
-                Log.e("FotoError", "Simpan foto gagal: ${e.message}")
-                withContext(Dispatchers.Main) {
-                    Toast.makeText(context, "Gagal simpan foto", Toast.LENGTH_SHORT).show()
-                }
             }
-        } ?: withContext(Dispatchers.Main) {
-            Toast.makeText(context, "Foto gagal diambil", Toast.LENGTH_SHORT).show()
         }
+    } catch (e: Exception) {
+        Log.e("FotoError", "Simpan foto gagal: ${e.message}")
+        Toast.makeText(context, "Gagal simpan foto", Toast.LENGTH_SHORT).show()
     }
 }
 

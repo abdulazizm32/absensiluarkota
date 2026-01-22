@@ -1,40 +1,44 @@
 package com.abdulazizmurtadho.uas.absensiluarkota
-
-import androidx.recyclerview.widget.RecyclerView
 import android.os.Bundle
+import android.util.Log
+import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
-
-
-import androidx.room.Room
-
+import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-
-
 class LaporanActivity : AppCompatActivity() {
     private lateinit var db: AppDatabase
-    private lateinit var rvLaporan: RecyclerView
-    private lateinit var adapter: LaporanAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_laporan)
 
         db = AppDatabase.getDatabase(this)
+        loadAndShowLaporan()
+    }
 
-        rvLaporan = findViewById(R.id.rvLaporan)
-        rvLaporan.layoutManager = LinearLayoutManager(this)
-        adapter = LaporanAdapter()
-        rvLaporan.adapter = adapter
-
-        // ambil data dari Room
+    private fun loadAndShowLaporan() {
         CoroutineScope(Dispatchers.IO).launch {
-            val list = db.absenDao().getAll()
-            withContext(Dispatchers.Main) {
-                adapter.submitList(list)
+            try {
+                val dao = db.absenDao()
+                val list = dao?.getAll() ?: emptyList()
+
+                withContext(Dispatchers.Main) {
+                    val items = list.map {
+                        "${it.nama} - ${it.tanggal}\nLat:${it.latitude} Lng:${it.longitude}"
+                    }
+
+                    AlertDialog.Builder(this@LaporanActivity)
+                        .setTitle("Daftar Absen (${list.size})")
+                        .setItems(items.toTypedArray()) { _, _ -> }
+                        .setPositiveButton("OK") { _, _ -> finish() }
+                        .show()
+                }
+            } catch (e: Exception) {
+                Toast.makeText(this@LaporanActivity, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
             }
         }
     }

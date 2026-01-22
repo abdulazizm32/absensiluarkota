@@ -36,7 +36,7 @@ class FirstApp : Application() {  // Ganti nama class
     }
 
     fun getAbsenDao() = database.absenDao()
-    fun getLokasiKantorDao(): LokasiKantorDao = database.lokasiKantorDao()
+//    fun getLokasiKantorDao() = database.lokasiKantorDao()
 
 
 }

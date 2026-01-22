@@ -8,7 +8,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.mapbox.geojson.Point
 import com.mapbox.maps.*
 import com.mapbox.maps.plugin.gestures.addOnMapClickListener
-import androidx.compose.ui.geometry.Offset  // Hanya ini
+import androidx.compose.ui.geometry.Offset
 import com.mapbox.maps.plugin.gestures.gestures
 
 class MapsActivity : AppCompatActivity() {
@@ -23,14 +23,12 @@ class MapsActivity : AppCompatActivity() {
         mapboxMap = mapView.mapboxMap
 
         mapboxMap.loadStyle(Style.MAPBOX_STREETS) { style ->
-            // v11: listener kasih POINT langsung! No convert needed
             mapView.gestures.addOnMapClickListener { point: Point ->
                 Toast.makeText(this, "Klik: ${point.latitude()}, ${point.longitude()}", Toast.LENGTH_LONG).show()
                 showConfirmDialog(point)
-                true  // Consume click
+                true
             }
 
-            // Malang center
             mapboxMap.setCamera(CameraOptions.Builder()
                 .center(Point.fromLngLat(112.6329, -8.0281))
                 .zoom(13.0)

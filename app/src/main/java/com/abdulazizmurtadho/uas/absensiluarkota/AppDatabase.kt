@@ -6,9 +6,11 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
 
-@Database(entities = [Absen::class, User::class], version = 2, exportSchema = false)
+@Database(entities = [Absen::class, User::class, LokasiKantor::class], version = 2, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun absenDao(): AbsenDao
+    abstract fun lokasiKantorDao(): LokasiKantorDao
+
 
     companion object {
         @Volatile private var INSTANCE: AppDatabase? = null
@@ -27,7 +29,7 @@ abstract class AppDatabase : RoomDatabase() {
                             db.execSQL("INSERT INTO users (username,password,nama,role) VALUES ('pegawai','123','Abdul Aziz','pegawai')")
                         }
                     })
-                    .fallbackToDestructiveMigration()  // ← TAMBAH INI
+                    .fallbackToDestructiveMigration()
                     .build().also { INSTANCE = it }
             }
         }
