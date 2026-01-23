@@ -11,41 +11,36 @@ import androidx.recyclerview.widget.RecyclerView
 import android.graphics.BitmapFactory
 import java.io.File
 
-class LaporanAdapter : ListAdapter<Absen, LaporanAdapter.ViewHolder>(DiffCallback()) {
+class LaporanAdapter : RecyclerView.Adapter<LaporanAdapter.ViewHolder>() {
+    private var listAbsen: List<Absen> = emptyList()
 
-    class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val tvNama: TextView = view.findViewById(R.id.tv_nama)
-        val tvTanggal: TextView = view.findViewById(R.id.tv_tanggal)
-        val tvKoordinat: TextView = view.findViewById(R.id.tv_koordinat)
-        val ivFoto: ImageView = view.findViewById(R.id.iv_foto)
+    fun updateData(newList: List<Absen>) {
+        listAbsen = newList
+        notifyDataSetChanged()
+    }
+
+    class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val imgFoto: ImageView = itemView.findViewById(R.id.imgFoto)
+        val tvNama: TextView = itemView.findViewById(R.id.tvNama)
+        val tvTanggal: TextView = itemView.findViewById(R.id.tvTanggal)
+        val tvKoordinat: TextView = itemView.findViewById(R.id.tvKoordinat)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.item_absen, parent, false)
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_absen, parent, false)
         return ViewHolder(view)
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val absen = getItem(position)
-        holder.tvNama.text = absen.nama
+        val absen = listAbsen[position]
+        holder.tvNama.text = "Pegawai ${absen.nama ?: "Unknown"}"
         holder.tvTanggal.text = absen.tanggal
-        holder.tvKoordinat.text = "Lat:${absen.latitude}, Lng:${absen.longitude}"
+        holder.tvKoordinat.text = "Lat: ${absen.latitude}, Lng: ${absen.longitude}"
 
-        // Load foto dari path
-        try {
-            val file = File(absen.fotoPath)
-            if (file.exists()) {
-                val bitmap = BitmapFactory.decodeFile(file.absolutePath)
-                holder.ivFoto.setImageBitmap(bitmap)
-            }
-        } catch (e: Exception) {
-            holder.ivFoto.setImageResource(android.R.drawable.ic_menu_camera)
-        }
+        val bitmap = BitmapFactory.decodeFile(absen.fotoPath)
+        holder.imgFoto.setImageBitmap(bitmap)
     }
 
-    class DiffCallback : DiffUtil.ItemCallback<Absen>() {
-        override fun areItemsTheSame(oldItem: Absen, newItem: Absen): Boolean = oldItem.id == newItem.id
-        override fun areContentsTheSame(oldItem: Absen, newItem: Absen): Boolean = oldItem == newItem
-    }
+    override fun getItemCount() = listAbsen.size
 }
+

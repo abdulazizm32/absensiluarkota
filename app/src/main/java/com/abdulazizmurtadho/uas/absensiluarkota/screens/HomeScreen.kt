@@ -29,7 +29,7 @@ import androidx.navigation.NavController
 import com.abdulazizmurtadho.uas.absensiluarkota.Absen
 import com.abdulazizmurtadho.uas.absensiluarkota.AbsenDao
 import com.abdulazizmurtadho.uas.absensiluarkota.AppDatabase
-import com.abdulazizmurtadho.uas.absensiluarkota.FirstApp  // App class dengan DB
+import com.abdulazizmurtadho.uas.absensiluarkota.FirstApp
 import com.abdulazizmurtadho.uas.absensiluarkota.LaporanActivity
 import com.abdulazizmurtadho.uas.absensiluarkota.MapsActivity
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -179,7 +179,7 @@ fun HomeScreen(navController: NavController) {
                 Spacer(modifier = Modifier.height(16.dp))
                 Button(
                     onClick = {
-                        context.startActivity(Intent(context, LaporanActivity::class.java))
+                        navController.navigate("laporan")
                     },
                     modifier = Modifier.fillMaxWidth()
                 ) {

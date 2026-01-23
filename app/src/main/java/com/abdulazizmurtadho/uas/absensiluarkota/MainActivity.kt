@@ -14,7 +14,9 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.abdulazizmurtadho.uas.absensiluarkota.screens.AdminScreen
 import com.abdulazizmurtadho.uas.absensiluarkota.screens.HomeScreen
+import com.abdulazizmurtadho.uas.absensiluarkota.screens.LaporanScreen
 import com.abdulazizmurtadho.uas.absensiluarkota.screens.LoginScreen
+import com.abdulazizmurtadho.uas.absensiluarkota.screens.MapsScreen
 import com.abdulazizmurtadho.uas.absensiluarkota.screens.SplashScreen
 import com.abdulazizmurtadho.uas.absensiluarkota.ui.theme.AbsensiTheme
 
@@ -44,7 +46,8 @@ fun AbsensiNavHost() {
         composable("splash") { SplashScreen(navController) }
         composable("login") { LoginScreen(navController) }
         composable("home") { HomeScreen(navController) }
-//        composable("laporan") { LaporanScreen() }
+        composable("laporan") { LaporanScreen() }
         composable("admin") { AdminScreen(navController) }
+        composable("maps") { MapsScreen(navController) }
     }
 }
