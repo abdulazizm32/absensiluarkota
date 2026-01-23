@@ -13,24 +13,19 @@ import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CameraAlt
-import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.core.content.ContextCompat.startActivity
 import androidx.navigation.NavController
 import com.abdulazizmurtadho.uas.absensiluarkota.Absen
 import com.abdulazizmurtadho.uas.absensiluarkota.AbsenDao
-import com.abdulazizmurtadho.uas.absensiluarkota.AppDatabase
 import com.abdulazizmurtadho.uas.absensiluarkota.FirstApp
-import com.abdulazizmurtadho.uas.absensiluarkota.LaporanActivity
+import com.abdulazizmurtadho.uas.absensiluarkota.LokasiKantor
+import com.abdulazizmurtadho.uas.absensiluarkota.LokasiKantorDao
 import com.abdulazizmurtadho.uas.absensiluarkota.MapsActivity
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
@@ -41,9 +36,7 @@ import kotlinx.coroutines.withContext
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
-import kotlin.math.log
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(navController: NavController) {
     val context = LocalContext.current
@@ -59,6 +52,25 @@ fun HomeScreen(navController: NavController) {
 
     val firstApp = context.applicationContext as FirstApp
     val absenDao = firstApp.getAbsenDao()
+    val lokasiDao = firstApp.getLokasiDao()
+    var teslokasiKantor by remember { mutableStateOf<Location?>(null) }
+
+    LaunchedEffect(Unit) {
+        try {
+            val lokasi = lokasiDao.getLokasiKantor()  // suspend OK di coroutine
+            var lat = lokasi?.latitude
+            Log.e("LokasiError", "Lat $lat", )
+
+            teslokasiKantor = Location("").apply {
+                latitude = lokasi?.latitude ?: -8.0280654
+                longitude = lokasi?.longitude ?: 112.6329028
+            }
+        } catch (e: Exception) {
+            Log.e("LokasiError", "Gagal load lokasi kantor", e)
+        }
+    }
+
+    Log.e("lokasi", "Insert gagal: ${teslokasiKantor}")
 
     val prefs_lokasi = context.getSharedPreferences("appsettings", Context.MODE_PRIVATE)
     val lokasiKantor = remember {
@@ -72,8 +84,7 @@ fun HomeScreen(navController: NavController) {
     val gpsLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { isGranted ->
-        if (isGranted) {
-            cekLokasi(fusedLocationClient, lokasiKantor, context) { distance, can ->
+        if (isGranted) { cekLokasi(fusedLocationClient, lokasiKantor, context) { distance, can ->
                 Log.e("lokasi", "Insert gagal: ${can}")
                 statusText = if (can) "DI KANTOR! ${String.format("%.0f", distance)}m" else "LUAR KANTOR! ${String.format("%.0f", distance)}m"
                 canAbsen = can
@@ -84,7 +95,7 @@ fun HomeScreen(navController: NavController) {
     val cameraLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
-        if (result.resultCode == android.app.Activity.RESULT_OK) {
+        if (result.resultCode == Activity.RESULT_OK) {
             ambilFotoAbsen(result.data, nama, absenDao, fusedLocationClient, context)  // Enhanced function [file:1]
         }
     }
@@ -154,7 +165,7 @@ fun HomeScreen(navController: NavController) {
                 val cameraLauncher = rememberLauncherForActivityResult(
                     ActivityResultContracts.StartActivityForResult()
                 ) { result ->
-                    if (result.resultCode == android.app.Activity.RESULT_OK && result.data != null) {
+                    if (result.resultCode == Activity.RESULT_OK && result.data != null) {
                         ambilFotoAbsen(result.data, nama, absenDao, fusedLocationClient, context)
                     }
                 }
@@ -190,6 +201,7 @@ fun HomeScreen(navController: NavController) {
                     Spacer(modifier = Modifier.height(16.dp))
                     Button(
                         onClick = {
+                            statusText = "Mencari Lokasi"
                             val intent = Intent(context, MapsActivity::class.java)
                             context.startActivity(intent)
                         },
@@ -221,17 +233,61 @@ fun HomeScreen(navController: NavController) {
         }
     }
 }
+suspend fun getlokasikantor(lokasiDao: LokasiKantorDao) {
+    var lokasi = lokasiDao.getLokasiKantor()
+    var lat = lokasi?.latitude
+    var lang = lokasi?.latitude
 
+    Log.d("GPS_OK", "Lat: $lat  dan lang $lang")
+}
+
+//private fun cekLokasi(
+//    fusedLocationClient: FusedLocationProviderClient,
+//    lokasiKantor: Location,
+//    context: Context,
+//    onResult: (distance: Float, canAbsen: Boolean) -> Unit
+//) {
+//    val firstApp = (context.applicationContext as FirstApp)
+//    var lokasiKantor by remember { mutableStateOf<LokasiKantor?>(null) }
+//    LaunchedEffect(Unit) {
+//        val lokasi = firstApp.getLokasiDao().getLatest()
+//        lokasiKantor = lokasi
+//    }
+//    Log.d("lokasiKantor",lokasiKantor.toString());
+//
+//    var statusText = "Mencari GPS..."
+//
+//    if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+//        statusText = "Gagal Akses permission GPS!"
+//        return
+//    }
+//
+//    fusedLocationClient.lastLocation
+//        .addOnSuccessListener { location ->
+//            if (location != null) {
+//                val distance = location.distanceTo(lokasiKantor)
+//                val canAbsen = distance <= 100f
+//                onResult(distance, canAbsen)
+//                Log.d("GPS_OK", "Distance: $distance m")
+//            } else {
+//                statusText = "GPS belum tersedia, aktifkan location services"
+//                Toast.makeText(context, "Buka GPS/Location services", Toast.LENGTH_LONG).show()
+//            }
+//        }
+//        .addOnFailureListener {
+//            statusText = "Error GPS"
+//            Log.e("GPS_FAIL", it.message ?: "Unknown")
+//            Toast.makeText(context, "GPS error: ${it.message}", Toast.LENGTH_SHORT).show()
+//        }
+//}
 private fun cekLokasi(
     fusedLocationClient: FusedLocationProviderClient,
     lokasiKantor: Location,
     context: Context,
     onResult: (distance: Float, canAbsen: Boolean) -> Unit
 ) {
-    var statusText = "Mencari GPS..."
-
-    if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-        statusText = "Gagal Akses permission GPS!"
+    if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) !=
+        PackageManager.PERMISSION_GRANTED) {
         return
     }
 
@@ -241,17 +297,18 @@ private fun cekLokasi(
                 val distance = location.distanceTo(lokasiKantor)
                 val canAbsen = distance <= 100f
                 onResult(distance, canAbsen)
-                Log.d("GPS_OK", "Distance: $distance m")
+                Log.d("GPS", "Distance ${distance}m")
             } else {
-                statusText = "GPS belum tersedia, aktifkan location services"
                 Toast.makeText(context, "Buka GPS/Location services", Toast.LENGTH_LONG).show()
             }
         }
-        .addOnFailureListener {
-            statusText = "Error GPS"
-            Log.e("GPS_FAIL", it.message ?: "Unknown")
-            Toast.makeText(context, "GPS error: ${it.message}", Toast.LENGTH_SHORT).show()
+        .addOnFailureListener { e ->
+            Log.e("GPSFAIL", e.message ?: "Unknown")
         }
+}
+
+private fun Location.distanceTo(other: LokasiKantor?) {
+    return this.distanceTo(other)
 }
 
 private fun ambilFotoAbsen(data: Intent?, nama: String, absenDao: AbsenDao, fusedLocationClient: FusedLocationProviderClient, context: Context ) {
