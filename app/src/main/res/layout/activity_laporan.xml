@@ -15,15 +15,6 @@
         android:gravity="center"
         android:layout_marginBottom="16dp" />
 
-    <TextView
-        android:id="@+id/tv_jumlah"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="0 absen ditemukan"
-        android:textSize="18sp"
-        android:gravity="center"
-        android:layout_marginBottom="16dp" />
-
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_laporan"
         android:layout_width="match_parent"

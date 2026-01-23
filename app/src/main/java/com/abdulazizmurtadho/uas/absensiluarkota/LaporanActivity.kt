@@ -16,27 +16,11 @@ class LaporanActivity : AppCompatActivity() {
     private lateinit var rvLaporan: RecyclerView
     private lateinit var adapter: LaporanAdapter
 
-//    override fun onCreate(savedInstanceState: Bundle?) {
-//        super.onCreate(savedInstanceState)
-//        setContentView(R.layout.activity_laporan)
-//
-//        rvLaporan = findViewById(R.id.rv_laporan)
-//        rvLaporan.layoutManager = LinearLayoutManager(this)
-//        adapter = LaporanAdapter()
-//        rvLaporan.adapter = adapter
-//
-//
-//        loadData()
-//        val btnRefresh = findViewById<Button>(R.id.btn_refresh)
-//        btnRefresh.setOnClickListener { loadData() }
-//        val tvJumlah = findViewById<TextView>(R.id.tv_jumlah)
-//    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_laporan)
 
-        val firstApp = applicationContext as FirstApp  // ← FIX 1
+        val firstApp = applicationContext as FirstApp
         val absenDao = firstApp.getAbsenDao()
 
         lifecycleScope.launch {
@@ -60,19 +44,19 @@ class LaporanActivity : AppCompatActivity() {
     }
 
 
-    override fun onResume() {  // Auto refresh
+    override fun onResume() {
         super.onResume()
         loadData()
     }
 
     private fun loadData() {
-        val firstApp = applicationContext as FirstApp  // ← FIX 1
-        val absenDao = firstApp.getAbsenDao() // ← FIX 2\
+        val firstApp = applicationContext as FirstApp
+        val absenDao = firstApp.getAbsenDao()
 
 
         lifecycleScope.launch {
             try {
-                val list = absenDao.getAll()  // Suspend getAll()
+                val list = absenDao.getAll()
 
                 // DEBUG LOG
                 Log.d("LaporanDebug", "Total: ${list.size}")
