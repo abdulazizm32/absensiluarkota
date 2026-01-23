@@ -12,9 +12,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import android.content.Intent
-import com.abdulazizmurtadho.uas.absensiluarkota.MapsActivity
-
-// Import MapsActivity sesuai package Anda
 
 @Composable
 fun AdminScreen(navController: NavController) {
@@ -41,8 +38,7 @@ fun AdminScreen(navController: NavController) {
                 Spacer(modifier = Modifier.height(24.dp))
                 FilledTonalButton(
                     onClick = {
-                        val intent = Intent(context, MapsActivity::class.java)
-                        context.startActivity(intent)
+                        navController.navigate("Maps")
                     },
                     modifier = Modifier.fillMaxWidth()
                 ) {

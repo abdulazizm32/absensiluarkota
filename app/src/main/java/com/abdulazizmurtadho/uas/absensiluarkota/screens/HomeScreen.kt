@@ -26,7 +26,6 @@ import com.abdulazizmurtadho.uas.absensiluarkota.AbsenDao
 import com.abdulazizmurtadho.uas.absensiluarkota.FirstApp
 import com.abdulazizmurtadho.uas.absensiluarkota.LokasiKantor
 import com.abdulazizmurtadho.uas.absensiluarkota.LokasiKantorDao
-import com.abdulazizmurtadho.uas.absensiluarkota.MapsActivity
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import kotlinx.coroutines.CoroutineScope
@@ -202,8 +201,20 @@ fun HomeScreen(navController: NavController) {
                     Button(
                         onClick = {
                             statusText = "Mencari Lokasi"
-                            val intent = Intent(context, MapsActivity::class.java)
-                            context.startActivity(intent)
+                            navController.navigate("Maps")
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("SET LOKASI KANTOR")
+                    }
+                }
+
+                if (isAdmin) {
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Button(
+                        onClick = {
+                            statusText = "Mencari Lokasi"
+                            navController.navigate("users")
                         },
                         modifier = Modifier.fillMaxWidth()
                     ) {
@@ -233,53 +244,6 @@ fun HomeScreen(navController: NavController) {
         }
     }
 }
-suspend fun getlokasikantor(lokasiDao: LokasiKantorDao) {
-    var lokasi = lokasiDao.getLokasiKantor()
-    var lat = lokasi?.latitude
-    var lang = lokasi?.latitude
-
-    Log.d("GPS_OK", "Lat: $lat  dan lang $lang")
-}
-
-//private fun cekLokasi(
-//    fusedLocationClient: FusedLocationProviderClient,
-//    lokasiKantor: Location,
-//    context: Context,
-//    onResult: (distance: Float, canAbsen: Boolean) -> Unit
-//) {
-//    val firstApp = (context.applicationContext as FirstApp)
-//    var lokasiKantor by remember { mutableStateOf<LokasiKantor?>(null) }
-//    LaunchedEffect(Unit) {
-//        val lokasi = firstApp.getLokasiDao().getLatest()
-//        lokasiKantor = lokasi
-//    }
-//    Log.d("lokasiKantor",lokasiKantor.toString());
-//
-//    var statusText = "Mencari GPS..."
-//
-//    if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-//        statusText = "Gagal Akses permission GPS!"
-//        return
-//    }
-//
-//    fusedLocationClient.lastLocation
-//        .addOnSuccessListener { location ->
-//            if (location != null) {
-//                val distance = location.distanceTo(lokasiKantor)
-//                val canAbsen = distance <= 100f
-//                onResult(distance, canAbsen)
-//                Log.d("GPS_OK", "Distance: $distance m")
-//            } else {
-//                statusText = "GPS belum tersedia, aktifkan location services"
-//                Toast.makeText(context, "Buka GPS/Location services", Toast.LENGTH_LONG).show()
-//            }
-//        }
-//        .addOnFailureListener {
-//            statusText = "Error GPS"
-//            Log.e("GPS_FAIL", it.message ?: "Unknown")
-//            Toast.makeText(context, "GPS error: ${it.message}", Toast.LENGTH_SHORT).show()
-//        }
-//}
 private fun cekLokasi(
     fusedLocationClient: FusedLocationProviderClient,
     lokasiKantor: Location,

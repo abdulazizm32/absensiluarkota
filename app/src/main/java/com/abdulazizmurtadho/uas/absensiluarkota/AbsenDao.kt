@@ -1,8 +1,6 @@
 package com.abdulazizmurtadho.uas.absensiluarkota
 
-import androidx.lifecycle.LiveData
 import androidx.room.*
-import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface AbsenDao {
@@ -26,8 +24,8 @@ interface AbsenDao {
 
     @Transaction
     suspend fun ensureTestUsers() {
-        val admin = User("admin", "123", "Admin IT", "admin")
-        val pegawai = User("pegawai", "123", "Abdul Aziz", "pegawai")
+        val admin = User(1, "admin", "123", "Admin IT","admin")
+        val pegawai = User(2,"pegawai", "123", "Abdul Aziz", "pegawai")
 
         insertUser(admin)
         insertUser(pegawai)

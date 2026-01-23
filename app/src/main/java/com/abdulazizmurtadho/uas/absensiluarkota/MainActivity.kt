@@ -18,6 +18,7 @@ import com.abdulazizmurtadho.uas.absensiluarkota.screens.LaporanScreen
 import com.abdulazizmurtadho.uas.absensiluarkota.screens.LoginScreen
 import com.abdulazizmurtadho.uas.absensiluarkota.screens.MapsScreen
 import com.abdulazizmurtadho.uas.absensiluarkota.screens.SplashScreen
+import com.abdulazizmurtadho.uas.absensiluarkota.screens.UserScreen
 import com.abdulazizmurtadho.uas.absensiluarkota.ui.theme.AbsensiTheme
 
 class MainActivity : ComponentActivity() {
@@ -49,5 +50,6 @@ fun AbsensiNavHost() {
         composable("laporan") { LaporanScreen() }
         composable("admin") { AdminScreen(navController) }
         composable("maps") { MapsScreen(navController) }
+        composable("users") { UserScreen(navController) }
     }
 }

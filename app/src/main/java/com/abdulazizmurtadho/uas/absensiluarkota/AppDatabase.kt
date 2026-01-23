@@ -10,6 +10,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 abstract class AppDatabase : RoomDatabase() {
     abstract fun absenDao(): AbsenDao
     abstract fun lokasiKantorDao(): LokasiKantorDao
+    abstract fun userdao(): UserDao
 
 
     companion object {
